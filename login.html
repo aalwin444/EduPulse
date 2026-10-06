@@ -11,7 +11,7 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20261006_2" />
 </head>
 <body>
 
@@ -376,6 +376,29 @@
       alert('Demo Credentials:\n\nAdministrator: admin / admin123\nFaculty Staff: staff / staff123');
     });
 
+    const DEMO_USERS = [
+      {
+        id: 'user_admin_001',
+        username: 'admin',
+        email: 'admin@edupulse.edu',
+        password: 'admin123',
+        name: 'Dr. Sarah Jenkins',
+        role: 'Administrator',
+        department: 'Administration',
+        avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+      },
+      {
+        id: 'user_staff_002',
+        username: 'staff',
+        email: 'staff@edupulse.edu',
+        password: 'staff123',
+        name: 'Prof. Marcus Chen',
+        role: 'Faculty Staff',
+        department: 'Academic Affairs',
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      },
+    ];
+
     // Handle Login Submit
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -391,51 +414,97 @@
         return;
       }
 
-      try {
-        submitBtn.disabled = true;
-        submitBtnText.textContent = 'Authenticating...';
+      submitBtn.disabled = true;
+      submitBtnText.textContent = 'Authenticating...';
 
-        let res;
+      const matchedDemoUser = DEMO_USERS.find(
+        (u) =>
+          (u.username.toLowerCase() === username.toLowerCase() ||
+           u.email.toLowerCase() === username.toLowerCase()) &&
+          u.password === password
+      );
+
+      const isStaticHost = window.location.hostname.includes('github.io');
+
+      // If running on static host (GitHub Pages) where no Node backend exists:
+      if (isStaticHost) {
+        if (matchedDemoUser) {
+          const storage = remember ? localStorage : sessionStorage;
+          storage.setItem(AUTH_KEY, JSON.stringify(matchedDemoUser));
+          storage.setItem(TOKEN_KEY, `demo_token_${matchedDemoUser.id}_${Date.now()}`);
+          localStorage.setItem('edupulse_demo_mode', 'true');
+
+          submitBtnText.textContent = 'Success! Redirecting...';
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 400);
+          return;
+        } else {
+          alertText.textContent = 'Invalid credentials. Demo logins: admin / admin123 or staff / staff123';
+          alertBox.style.display = 'flex';
+          submitBtn.disabled = false;
+          submitBtnText.textContent = 'Sign In to Dashboard';
+          return;
+        }
+      }
+
+      // If running locally or on custom server: attempt backend REST API first
+      try {
+        let authSuccess = false;
+        let authUser = null;
+        let authToken = null;
+
         try {
-          res = await fetch(`${API_BASE}/api/auth/login`, {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
           });
-        } catch (netErr) {
-          throw new Error('Cannot connect to backend server on port 5000. Please ensure "node server.js" is running.');
+
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const data = await res.json();
+            if (res.ok) {
+              authSuccess = true;
+              authUser = data.user;
+              authToken = data.token;
+              localStorage.removeItem('edupulse_demo_mode');
+            } else {
+              throw new Error(data.error || 'Invalid credentials.');
+            }
+          } else {
+            // Server returned HTML (e.g. 404 from static server)
+            throw new Error('BACKEND_HTML_FALLBACK');
+          }
+        } catch (fetchErr) {
+          // If server threw an explicit invalid credentials error from backend, show it
+          if (fetchErr.message && !fetchErr.message.includes('BACKEND_HTML_FALLBACK') && !fetchErr.message.includes('Failed to fetch')) {
+            throw fetchErr;
+          }
+
+          // If backend is unreachable or returned HTML, fallback to Demo login
+          if (matchedDemoUser) {
+            authSuccess = true;
+            authUser = matchedDemoUser;
+            authToken = `demo_token_${matchedDemoUser.id}_${Date.now()}`;
+            localStorage.setItem('edupulse_demo_mode', 'true');
+          } else {
+            throw new Error('Invalid credentials. Demo logins: admin / admin123 or staff / staff123');
+          }
         }
 
-        const contentType = res.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-          throw new Error('Backend server did not return a valid response. Please ensure "node server.js" is running on port 5000.');
+        if (authSuccess && authUser) {
+          const storage = remember ? localStorage : sessionStorage;
+          storage.setItem(AUTH_KEY, JSON.stringify(authUser));
+          if (authToken) storage.setItem(TOKEN_KEY, authToken);
+
+          submitBtnText.textContent = 'Success! Redirecting...';
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 400);
         }
-
-        let data;
-        try {
-          data = await res.json();
-        } catch (jsonErr) {
-          throw new Error('Server returned an unreadable response. Please check backend server.');
-        }
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Invalid credentials.');
-        }
-
-        const storage = remember ? localStorage : sessionStorage;
-        storage.setItem(AUTH_KEY, JSON.stringify(data.user));
-        if (data.token) storage.setItem(TOKEN_KEY, data.token);
-
-        submitBtnText.textContent = 'Success! Redirecting...';
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 500);
       } catch (err) {
-        let msg = err.message || 'Authentication error.';
-        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-          msg = 'Cannot connect to backend server on port 5000. Please ensure "node server.js" is running.';
-        }
-        alertText.textContent = msg;
+        alertText.textContent = err.message || 'Authentication error.';
         alertBox.style.display = 'flex';
         submitBtn.disabled = false;
         submitBtnText.textContent = 'Sign In to Dashboard';

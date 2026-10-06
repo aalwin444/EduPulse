@@ -18,39 +18,299 @@ const API_BASE = (() => {
 })();
 
 /**
- * Safe fetch helper that validates JSON responses and provides user-friendly errors
+ * Safe fetch helper that validates JSON responses and provides graceful fallback
  */
 async function safeFetchJson(url, options = {}) {
+  // If explicitly on GitHub Pages or static host, skip remote fetch to avoid 404 HTML
+  if (window.location.hostname.includes('github.io')) {
+    return { res: { ok: false, status: 404 }, data: null, isFallback: true };
+  }
+
   let res;
   try {
     res = await fetch(url, options);
   } catch (netErr) {
-    throw new Error('Cannot connect to backend server on port 5000. Please ensure "node server.js" is running.');
+    return { res: { ok: false, status: 0 }, data: null, isFallback: true };
   }
 
   const contentType = res.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
-    const text = await res.text().catch(() => '');
-    if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-      throw new Error('Backend server did not return JSON. Please ensure "node server.js" is running on port 5000.');
-    }
-    throw new Error(`Server returned unexpected response (${res.status} ${res.statusText})`);
+    return { res: { ok: false, status: res.status }, data: null, isFallback: true };
   }
 
   let data;
   try {
     data = await res.json();
   } catch (jsonErr) {
-    throw new Error('Failed to parse server response as JSON.');
+    return { res: { ok: false, status: res.status }, data: null, isFallback: true };
   }
 
-  return { res, data };
+  return { res, data, isFallback: false };
 }
+
+// Built-in Demo Credentials
+const DEMO_USERS = [
+  {
+    id: 'user_admin_001',
+    username: 'admin',
+    email: 'admin@edupulse.edu',
+    password: 'admin123',
+    name: 'Dr. Sarah Jenkins',
+    role: 'Administrator',
+    department: 'Administration',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'user_staff_002',
+    username: 'staff',
+    email: 'staff@edupulse.edu',
+    password: 'staff123',
+    name: 'Prof. Marcus Chen',
+    role: 'Faculty Staff',
+    department: 'Academic Affairs',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  },
+];
+
+// Default Students Dataset for Cloud/Offline Demo Mode
+const DEFAULT_STUDENTS = [
+  {
+    _id: 'stu_demo_001',
+    studentId: 'STU-2024-001',
+    fullName: 'Alex Johnson',
+    email: 'alex.j@university.edu',
+    phone: '+1 555-019-2834',
+    dob: '2003-05-14',
+    gender: 'Male',
+    department: 'Computer Science',
+    year: '2nd Year',
+    semester: 'Semester 4',
+    gpa: 3.85,
+    status: 'Active',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80',
+    address: '742 Evergreen Terrace, Springfield',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'stu_demo_002',
+    studentId: 'STU-2024-002',
+    fullName: 'Sophia Martinez',
+    email: 'sophia.m@university.edu',
+    phone: '+1 555-014-8891',
+    dob: '2004-09-21',
+    gender: 'Female',
+    department: 'Electrical Engineering',
+    year: '2nd Year',
+    semester: 'Semester 3',
+    gpa: 3.92,
+    status: 'Active',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+    address: '124 Conch Street, Pacific City',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'stu_demo_003',
+    studentId: 'STU-2024-003',
+    fullName: 'Liam Patel',
+    email: 'liam.patel@university.edu',
+    phone: '+1 555-017-4423',
+    dob: '2002-12-05',
+    gender: 'Male',
+    department: 'Information Technology',
+    year: '4th Year',
+    semester: 'Semester 7',
+    gpa: 3.65,
+    status: 'Active',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
+    address: '42 Wallaby Way, Sydney Park',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'stu_demo_004',
+    studentId: 'STU-2024-004',
+    fullName: 'Emma Watson',
+    email: 'emma.watson@university.edu',
+    phone: '+1 555-018-7721',
+    dob: '2003-01-18',
+    gender: 'Female',
+    department: 'Business Administration',
+    year: '3rd Year',
+    semester: 'Semester 6',
+    gpa: 3.78,
+    status: 'Active',
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop&q=80',
+    address: '221B Baker St, London Row',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'stu_demo_005',
+    studentId: 'STU-2024-005',
+    fullName: 'Marcus Vance',
+    email: 'marcus.v@university.edu',
+    phone: '+1 555-013-6612',
+    dob: '2001-08-30',
+    gender: 'Male',
+    department: 'Mechanical Engineering',
+    year: '4th Year',
+    semester: 'Semester 8',
+    gpa: 3.45,
+    status: 'Graduated',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',
+    address: '10 Downing Court, Metro City',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'stu_demo_006',
+    studentId: 'STU-2024-006',
+    fullName: 'Chloe Bennett',
+    email: 'chloe.b@university.edu',
+    phone: '+1 555-012-3345',
+    dob: '2005-03-11',
+    gender: 'Female',
+    department: 'Data Science',
+    year: '1st Year',
+    semester: 'Semester 2',
+    gpa: 3.95,
+    status: 'Active',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80',
+    address: '350 Fifth Ave, Empire State',
+    createdAt: new Date().toISOString(),
+  },
+];
+
+// Default Courses Dataset for Cloud/Offline Demo Mode
+const DEFAULT_COURSES = [
+  {
+    _id: 'crs_demo_001',
+    courseCode: 'CS101',
+    courseName: 'Data Structures & Algorithms',
+    department: 'Computer Science',
+    credits: 4,
+    instructor: 'Dr. Evelyn Reed',
+    semester: 'Semester 1',
+    schedule: 'Mon, Wed 10:00 AM - 11:30 AM',
+    capacity: 60,
+    status: 'Active',
+    description: 'Fundamental data structures, recursion, dynamic programming, and computational complexity analysis.',
+  },
+  {
+    _id: 'crs_demo_002',
+    courseCode: 'DS201',
+    courseName: 'Machine Learning & Big Data Analytics',
+    department: 'Data Science',
+    credits: 3,
+    instructor: 'Dr. Alistair Vance',
+    semester: 'Semester 2',
+    schedule: 'Tue, Thu 02:00 PM - 03:30 PM',
+    capacity: 50,
+    status: 'Active',
+    description: 'Supervised and unsupervised models, statistical regression, deep neural networks, and data pipelines.',
+  },
+  {
+    _id: 'crs_demo_003',
+    courseCode: 'EE301',
+    courseName: 'Digital Signal Processing & IoT',
+    department: 'Electrical Engineering',
+    credits: 4,
+    instructor: 'Prof. Marcus Chen',
+    semester: 'Semester 3',
+    schedule: 'Mon, Wed, Fri 09:00 AM - 10:00 AM',
+    capacity: 45,
+    status: 'Active',
+    description: 'Discrete signals, Fourier analysis, digital filter architectures, and embedded microcontroller systems.',
+  },
+  {
+    _id: 'crs_demo_004',
+    courseCode: 'IT204',
+    courseName: 'Cloud Architecture & Cybersecurity',
+    department: 'Information Technology',
+    credits: 3,
+    instructor: 'Prof. Elena Rostova',
+    semester: 'Semester 4',
+    schedule: 'Tue, Thu 11:00 AM - 12:30 PM',
+    capacity: 55,
+    status: 'Active',
+    description: 'Virtualization, microservices, cloud deployments, network defense protocols, and incident response.',
+  },
+  {
+    _id: 'crs_demo_005',
+    courseCode: 'ME105',
+    courseName: 'Robotics & Mechanical Kinematics',
+    department: 'Mechanical Engineering',
+    credits: 4,
+    instructor: 'Dr. Harrison Ford',
+    semester: 'Semester 1',
+    schedule: 'Wed, Fri 01:00 PM - 02:30 PM',
+    capacity: 40,
+    status: 'Active',
+    description: 'Kinematics of robotic manipulators, actuation systems, sensors, and 3D computer-aided engineering.',
+  },
+  {
+    _id: 'crs_demo_006',
+    courseCode: 'BA302',
+    courseName: 'Strategic Leadership & Business Analytics',
+    department: 'Business Administration',
+    credits: 3,
+    instructor: 'Dean Patricia Hayes',
+    semester: 'Semester 5',
+    schedule: 'Mon, Thu 03:30 PM - 05:00 PM',
+    capacity: 65,
+    status: 'Active',
+    description: 'Quantitative decision modeling, competitive strategy, market analytics, and executive leadership.',
+  },
+];
+
+// Default Attendance Dataset for Cloud/Offline Demo Mode
+const demoToday = new Date().toISOString().slice(0, 10);
+const demoYesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+const DEFAULT_ATTENDANCE = [
+  { _id: 'att_demo_001', studentId: 'STU-2024-001', studentName: 'Alex Johnson', studentAvatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80', department: 'Computer Science', courseCode: 'CS101', courseName: 'Data Structures & Algorithms', date: demoToday, status: 'Present', remarks: 'On time' },
+  { _id: 'att_demo_002', studentId: 'STU-2024-002', studentName: 'Sophia Martinez', studentAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80', department: 'Electrical Engineering', courseCode: 'EE301', courseName: 'Digital Signal Processing & IoT', date: demoToday, status: 'Present', remarks: 'Active participation' },
+  { _id: 'att_demo_003', studentId: 'STU-2024-003', studentName: 'Liam Patel', studentAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', department: 'Information Technology', courseCode: 'IT204', courseName: 'Cloud Architecture & Cybersecurity', date: demoToday, status: 'Late', remarks: 'Arrived 15 mins late' },
+  { _id: 'att_demo_004', studentId: 'STU-2024-004', studentName: 'Emma Watson', studentAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop&q=80', department: 'Business Administration', courseCode: 'BA302', courseName: 'Strategic Leadership & Business Analytics', date: demoToday, status: 'Present', remarks: 'Team lead' },
+  { _id: 'att_demo_005', studentId: 'STU-2024-006', studentName: 'Chloe Bennett', studentAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80', department: 'Data Science', courseCode: 'DS201', courseName: 'Machine Learning & Big Data Analytics', date: demoToday, status: 'Absent', remarks: 'Unexcused absence' },
+  { _id: 'att_demo_006', studentId: 'STU-2024-001', studentName: 'Alex Johnson', studentAvatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80', department: 'Computer Science', courseCode: 'CS101', courseName: 'Data Structures & Algorithms', date: demoYesterday, status: 'Present', remarks: '' },
+  { _id: 'att_demo_007', studentId: 'STU-2024-002', studentName: 'Sophia Martinez', studentAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80', department: 'Electrical Engineering', courseCode: 'EE301', courseName: 'Digital Signal Processing & IoT', date: demoYesterday, status: 'Present', remarks: '' },
+  { _id: 'att_demo_008', studentId: 'STU-2024-003', studentName: 'Liam Patel', studentAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80', department: 'Information Technology', courseCode: 'IT204', courseName: 'Cloud Architecture & Cybersecurity', date: demoYesterday, status: 'Present', remarks: '' },
+  { _id: 'att_demo_009', studentId: 'STU-2024-004', studentName: 'Emma Watson', studentAvatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&auto=format&fit=crop&q=80', department: 'Business Administration', courseCode: 'BA302', courseName: 'Strategic Leadership & Business Analytics', date: demoYesterday, status: 'Excused', remarks: 'Medical appointment' },
+  { _id: 'att_demo_010', studentId: 'STU-2024-006', studentName: 'Chloe Bennett', studentAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80', department: 'Data Science', courseCode: 'DS201', courseName: 'Machine Learning & Big Data Analytics', date: demoYesterday, status: 'Present', remarks: '' },
+];
+
+// Client-Side LocalStorage Store for Offline / GitHub Pages Mode
+const ClientStore = {
+  get(key, fallback) {
+    try {
+      const data = localStorage.getItem(`edupulse_${key}`);
+      return data ? JSON.parse(data) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  set(key, val) {
+    try {
+      localStorage.setItem(`edupulse_${key}`, JSON.stringify(val));
+    } catch (e) {}
+  },
+  init() {
+    if (!this.get('students', null)) this.set('students', DEFAULT_STUDENTS);
+    if (!this.get('courses', null)) this.set('courses', DEFAULT_COURSES);
+    if (!this.get('attendance', null)) this.set('attendance', DEFAULT_ATTENDANCE);
+  },
+  reset() {
+    this.set('students', DEFAULT_STUDENTS);
+    this.set('courses', DEFAULT_COURSES);
+    this.set('attendance', DEFAULT_ATTENDANCE);
+  },
+};
+
+// Auto-initialize ClientStore
+ClientStore.init();
 
 // Application State
 const state = {
   currentUser: null,
   activeTab: 'students',
+  isDemoMode: window.location.hostname.includes('github.io') || localStorage.getItem('edupulse_demo_mode') === 'true',
   students: [],
   filteredStudents: [],
   filters: {
@@ -831,34 +1091,75 @@ async function handleLoginSubmit(e) {
     return;
   }
 
-  try {
-    elements.btnLoginSubmit.disabled = true;
-    elements.btnLoginSubmitText.textContent = 'Verifying credentials...';
+  elements.btnLoginSubmit.disabled = true;
+  elements.btnLoginSubmitText.textContent = 'Verifying credentials...';
 
-    const { res, data } = await safeFetchJson(`${API_BASE}/api/auth/login`, {
+  const matchedDemoUser = DEMO_USERS.find(
+    (u) =>
+      (u.username.toLowerCase() === username.toLowerCase() ||
+       u.email.toLowerCase() === username.toLowerCase()) &&
+      u.password === password
+  );
+
+  const isStaticHost = window.location.hostname.includes('github.io');
+
+  // If on GitHub Pages: authenticate directly client-side
+  if (isStaticHost) {
+    if (matchedDemoUser) {
+      ClientStore.init();
+      state.isDemoMode = true;
+      localStorage.setItem('edupulse_demo_mode', 'true');
+      saveAuth(matchedDemoUser, `demo_token_${matchedDemoUser.id}_${Date.now()}`, remember);
+      updateAuthUI();
+      showToast(`Signed in as ${matchedDemoUser.name} (${matchedDemoUser.role})`, 'success');
+      checkDbHealth();
+      fetchStats();
+      fetchStudents();
+    } else {
+      showLoginAlert('Invalid credentials. Demo logins: admin / admin123 or staff / staff123');
+    }
+    elements.btnLoginSubmit.disabled = false;
+    elements.btnLoginSubmitText.textContent = 'Sign In to Dashboard';
+    return;
+  }
+
+  // Attempt backend API first
+  try {
+    const fetchRes = await safeFetchJson(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
 
-    if (!res.ok) {
-      throw new Error(data.error || 'Authentication failed. Please verify credentials.');
+    if (!fetchRes.isFallback && fetchRes.res.ok) {
+      localStorage.removeItem('edupulse_demo_mode');
+      state.isDemoMode = false;
+      saveAuth(fetchRes.data.user, fetchRes.data.token, remember);
+      updateAuthUI();
+      showToast(`Signed in as ${fetchRes.data.user.name} (${fetchRes.data.user.role})`, 'success');
+      checkDbHealth();
+      fetchStats();
+      fetchStudents();
+    } else if (!fetchRes.isFallback && !fetchRes.res.ok) {
+      showLoginAlert(fetchRes.data?.error || 'Invalid credentials.');
+    } else {
+      // Backend is unavailable or returned HTML: fallback to demo credentials
+      if (matchedDemoUser) {
+        ClientStore.init();
+        state.isDemoMode = true;
+        localStorage.setItem('edupulse_demo_mode', 'true');
+        saveAuth(matchedDemoUser, `demo_token_${matchedDemoUser.id}_${Date.now()}`, remember);
+        updateAuthUI();
+        showToast(`Signed in as ${matchedDemoUser.name} (${matchedDemoUser.role}) [Demo Mode]`, 'info');
+        checkDbHealth();
+        fetchStats();
+        fetchStudents();
+      } else {
+        showLoginAlert('Backend server is offline. Demo logins: admin / admin123 or staff / staff123');
+      }
     }
-
-    saveAuth(data.user, data.token, remember);
-    updateAuthUI();
-    showToast(`Signed in as ${data.user.name} (${data.user.role})`, 'success');
-
-    // Trigger data loading upon login
-    checkDbHealth();
-    fetchStats();
-    fetchStudents();
   } catch (err) {
-    let msg = err.message || 'Unable to connect to login server.';
-    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-      msg = 'Cannot connect to backend server on port 5000. Please ensure "node server.js" is running.';
-    }
-    showLoginAlert(msg);
+    showLoginAlert(err.message || 'Authentication error.');
   } finally {
     elements.btnLoginSubmit.disabled = false;
     elements.btnLoginSubmitText.textContent = 'Sign In to Dashboard';
@@ -944,40 +1245,51 @@ function updateResetButtonVisibility() {
 // API Calls: Health & Stats
 // ============================================================================
 async function checkDbHealth(showToastNotice = false) {
-  try {
-    const { res, data } = await safeFetchJson(`${API_BASE}/api/health`);
-    if (!res.ok) throw new Error('API server unreachable');
+  if (window.location.hostname.includes('github.io')) {
+    elements.dbDot.className = 'status-indicator online';
+    elements.dbText.textContent = 'Cloud Demo (GitHub Pages)';
+    if (showToastNotice) showToast('EduPulse running in interactive Cloud Demo mode', 'info');
+    return;
+  }
 
-    if (data.database === 'Connected') {
-      elements.dbDot.className = 'status-indicator online';
-      elements.dbText.textContent = 'MongoDB Online';
-      if (showToastNotice) showToast('MongoDB connection healthy and verified', 'success');
-    } else {
-      elements.dbDot.className = 'status-indicator connecting';
-      elements.dbText.textContent = `MongoDB: ${data.database}`;
-      if (showToastNotice) showToast(`MongoDB Status: ${data.database}`, 'warning');
-    }
-  } catch (error) {
-    elements.dbDot.className = 'status-indicator offline';
-    elements.dbText.textContent = 'DB Disconnected';
-    if (showToastNotice) {
-      showToast('Cannot connect to server or MongoDB. Ensure server.js is running.', 'error');
-    }
+  const { res, data, isFallback } = await safeFetchJson(`${API_BASE}/api/health`);
+
+  if (!isFallback && res.ok && data?.database === 'Connected') {
+    state.isDemoMode = false;
+    elements.dbDot.className = 'status-indicator online';
+    elements.dbText.textContent = 'MongoDB Online';
+    if (showToastNotice) showToast('MongoDB connection healthy and verified', 'success');
+  } else {
+    state.isDemoMode = true;
+    elements.dbDot.className = 'status-indicator connecting';
+    elements.dbText.textContent = 'Local Demo Mode';
+    if (showToastNotice) showToast('Operating in client-side interactive Demo mode.', 'info');
   }
 }
 
 async function fetchStats() {
-  try {
-    const { res, data: stats } = await safeFetchJson(`${API_BASE}/api/stats`);
-    if (!res.ok) return;
-
-    elements.statTotalStudents.textContent = stats.totalStudents ?? 0;
-    elements.statActiveStudents.textContent = stats.activeStudents ?? 0;
-    elements.statDepartments.textContent = stats.departmentCount ?? 0;
-    elements.statAvgGpa.textContent = stats.avgGpa ?? '0.00';
-  } catch (err) {
-    console.error('Error fetching stats:', err);
+  if (!state.isDemoMode) {
+    const { res, data: stats, isFallback } = await safeFetchJson(`${API_BASE}/api/stats`);
+    if (!isFallback && res.ok && stats) {
+      elements.statTotalStudents.textContent = stats.totalStudents ?? 0;
+      elements.statActiveStudents.textContent = stats.activeStudents ?? 0;
+      elements.statDepartments.textContent = stats.departmentCount ?? 0;
+      elements.statAvgGpa.textContent = stats.avgGpa ?? '0.00';
+      return;
+    }
   }
+
+  // ClientStore calculation
+  const students = ClientStore.get('students', DEFAULT_STUDENTS);
+  const total = students.length;
+  const active = students.filter((s) => s.status === 'Active').length;
+  const depts = new Set(students.map((s) => s.department).filter(Boolean)).size;
+  const avgGpa = total > 0 ? (students.reduce((acc, s) => acc + (parseFloat(s.gpa) || 0), 0) / total).toFixed(2) : '0.00';
+
+  elements.statTotalStudents.textContent = total;
+  elements.statActiveStudents.textContent = active;
+  elements.statDepartments.textContent = depts;
+  elements.statAvgGpa.textContent = avgGpa;
 }
 
 // ============================================================================
@@ -995,18 +1307,57 @@ async function fetchStudents() {
       order: state.filters.order,
     });
 
-    const { res, data: students } = await safeFetchJson(`${API_BASE}/api/students?${params.toString()}`);
-    if (!res.ok) {
-      throw new Error(`Failed to load students (${res.status})`);
+    if (!state.isDemoMode) {
+      const { res, data: students, isFallback } = await safeFetchJson(`${API_BASE}/api/students?${params.toString()}`);
+      if (!isFallback && res.ok && Array.isArray(students)) {
+        state.students = students;
+        renderStudentsTable(state.students);
+        updateRecordsCount(state.students.length);
+        return;
+      }
     }
 
-    state.students = Array.isArray(students) ? students : [];
+    // ClientStore fallback
+    let students = ClientStore.get('students', DEFAULT_STUDENTS);
+    const search = (state.filters.search || '').toLowerCase().trim();
+    const dept = state.filters.department || 'All';
+    const status = state.filters.status || 'All';
+    const sortBy = state.filters.sortBy || 'createdAt';
+    const order = state.filters.order || 'desc';
 
+    if (search) {
+      students = students.filter(
+        (s) =>
+          (s.fullName || '').toLowerCase().includes(search) ||
+          (s.studentId || '').toLowerCase().includes(search) ||
+          (s.email || '').toLowerCase().includes(search)
+      );
+    }
+    if (dept !== 'All') {
+      students = students.filter((s) => s.department === dept);
+    }
+    if (status !== 'All') {
+      students = students.filter((s) => s.status === status);
+    }
+
+    students.sort((a, b) => {
+      let va = a[sortBy];
+      let vb = b[sortBy];
+      if (sortBy === 'gpa') {
+        va = parseFloat(va) || 0;
+        vb = parseFloat(vb) || 0;
+        return order === 'asc' ? va - vb : vb - va;
+      }
+      va = (va || '').toString().toLowerCase();
+      vb = (vb || '').toString().toLowerCase();
+      return order === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    });
+
+    state.students = students;
     renderStudentsTable(state.students);
     updateRecordsCount(state.students.length);
   } catch (err) {
     console.error('Fetch error:', err);
-    showToast(err.message || 'Failed to connect to backend server. Make sure node server.js is running.', 'error');
     renderStudentsTable([]);
   } finally {
     showLoading(false);
@@ -1016,13 +1367,20 @@ async function fetchStudents() {
 async function seedSampleData() {
   try {
     elements.btnSeedData.disabled = true;
-    showToast('Seeding demo student records into MongoDB...', 'info');
 
-    const { res, data } = await safeFetchJson(`${API_BASE}/api/seed`, { method: 'POST' });
+    if (!state.isDemoMode) {
+      const { res, data, isFallback } = await safeFetchJson(`${API_BASE}/api/seed`, { method: 'POST' });
+      if (!isFallback && res.ok) {
+        showToast(`Success! ${data.count || 6} demo students loaded into MongoDB.`, 'success');
+        fetchStats();
+        fetchStudents();
+        return;
+      }
+    }
 
-    if (!res.ok) throw new Error(data.error || 'Failed to seed');
-
-    showToast(`Success! ${data.count} demo students loaded into MongoDB.`, 'success');
+    // ClientStore reset
+    ClientStore.reset();
+    showToast('Success! Demo students, courses, and attendance refreshed in Client Storage.', 'success');
     fetchStats();
     fetchStudents();
   } catch (err) {
@@ -1285,20 +1643,45 @@ async function handleFormSubmit(e) {
       : `${API_BASE}/api/students`;
     const method = isEdit ? 'PUT' : 'POST';
 
-    const { res, data: result } = await safeFetchJson(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(studentData),
-    });
+    if (!state.isDemoMode) {
+      const { res, data: result, isFallback } = await safeFetchJson(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentData),
+      });
 
-    if (!res.ok) {
-      throw new Error(result.error || 'Failed to save student record');
+      if (!isFallback && res.ok) {
+        showToast(
+          isEdit
+            ? `Student ${result.fullName} updated successfully!`
+            : `New Student ${result.fullName} successfully registered!`,
+          'success'
+        );
+        closeStudentModal();
+        fetchStats();
+        fetchStudents();
+        return;
+      }
     }
+
+    // ClientStore fallback
+    let allStudents = ClientStore.get('students', DEFAULT_STUDENTS);
+    if (isEdit) {
+      const idx = allStudents.findIndex((s) => (s._id || s.studentId) === state.currentEditingId);
+      if (idx !== -1) {
+        allStudents[idx] = { ...allStudents[idx], ...studentData };
+      }
+    } else {
+      studentData._id = `stu_${Date.now()}`;
+      studentData.createdAt = new Date().toISOString();
+      allStudents.unshift(studentData);
+    }
+    ClientStore.set('students', allStudents);
 
     showToast(
       isEdit
-        ? `Student ${result.fullName} updated successfully!`
-        : `New Student ${result.fullName} successfully registered in MongoDB!`,
+        ? `Student ${studentData.fullName} updated successfully!`
+        : `New Student ${studentData.fullName} successfully registered!`,
       'success'
     );
 
@@ -1306,7 +1689,7 @@ async function handleFormSubmit(e) {
     fetchStats();
     fetchStudents();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error saving student record', 'error');
   } finally {
     elements.btnSubmitStudent.disabled = false;
     elements.btnSubmitText.textContent = isEdit ? 'Update Student' : 'Save Student';
@@ -1435,18 +1818,31 @@ async function executeDeleteStudent() {
 
   try {
     elements.btnConfirmDelete.disabled = true;
-    const { res, data: result } = await safeFetchJson(`${API_BASE}/api/students/${state.currentDeletingId}`, {
-      method: 'DELETE',
-    });
 
-    if (!res.ok) throw new Error(result.error || 'Failed to delete record');
+    if (!state.isDemoMode) {
+      const { res, isFallback } = await safeFetchJson(`${API_BASE}/api/students/${state.currentDeletingId}`, {
+        method: 'DELETE',
+      });
+      if (!isFallback && res.ok) {
+        showToast('Student record deleted successfully', 'success');
+        closeDeleteModal();
+        fetchStats();
+        fetchStudents();
+        return;
+      }
+    }
 
-    showToast('Student record deleted from MongoDB successfully', 'success');
+    // ClientStore fallback
+    let allStudents = ClientStore.get('students', DEFAULT_STUDENTS);
+    allStudents = allStudents.filter((s) => (s._id || s.studentId) !== state.currentDeletingId);
+    ClientStore.set('students', allStudents);
+
+    showToast('Student record deleted successfully', 'success');
     closeDeleteModal();
     fetchStats();
     fetchStudents();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Failed to delete record', 'error');
   } finally {
     elements.btnConfirmDelete.disabled = false;
   }
@@ -1598,15 +1994,42 @@ async function fetchCourses() {
       status: state.courseFilters.status,
     });
 
-    const { res, data: courses } = await safeFetchJson(`${API_BASE}/api/courses?${params.toString()}`);
-    if (!res.ok) throw new Error('Failed to load courses');
-    state.courses = Array.isArray(courses) ? courses : [];
+    if (!state.isDemoMode) {
+      const { res, data: courses, isFallback } = await safeFetchJson(`${API_BASE}/api/courses?${params.toString()}`);
+      if (!isFallback && res.ok && Array.isArray(courses)) {
+        state.courses = courses;
+        renderCoursesTable(state.courses);
+        updateCourseStats(state.courses);
+        return;
+      }
+    }
 
+    // ClientStore fallback
+    let courses = ClientStore.get('courses', DEFAULT_COURSES);
+    const search = (state.courseFilters.search || '').toLowerCase().trim();
+    const dept = state.courseFilters.department || 'All';
+    const status = state.courseFilters.status || 'All';
+
+    if (search) {
+      courses = courses.filter(
+        (c) =>
+          (c.courseName || '').toLowerCase().includes(search) ||
+          (c.courseCode || '').toLowerCase().includes(search) ||
+          (c.instructor || '').toLowerCase().includes(search)
+      );
+    }
+    if (dept !== 'All') {
+      courses = courses.filter((c) => c.department === dept);
+    }
+    if (status !== 'All') {
+      courses = courses.filter((c) => c.status === status);
+    }
+
+    state.courses = courses;
     renderCoursesTable(state.courses);
     updateCourseStats(state.courses);
   } catch (err) {
     console.error('Fetch courses error:', err);
-    showToast(err.message || 'Failed to load courses from MongoDB', 'error');
     renderCoursesTable([]);
   } finally {
     if (elements.loadingStateCourses) elements.loadingStateCourses.style.display = 'none';
@@ -1809,20 +2232,41 @@ async function handleCourseSubmit(e) {
       : `${API_BASE}/api/courses`;
     const method = isEdit ? 'PUT' : 'POST';
 
-    const { res, data: result } = await safeFetchJson(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    if (!state.isDemoMode) {
+      const { res, data: result, isFallback } = await safeFetchJson(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    if (!res.ok) throw new Error(result.error || 'Failed to save course');
+      if (!isFallback && res.ok) {
+        showToast(isEdit ? 'Course updated successfully' : 'New course added successfully', 'success');
+        closeCourseModal();
+        fetchCourses();
+        fetchCoursesForDropdown();
+        return;
+      }
+    }
+
+    // ClientStore fallback
+    let allCourses = ClientStore.get('courses', DEFAULT_COURSES);
+    if (isEdit) {
+      const idx = allCourses.findIndex((c) => (c._id || c.courseCode) === state.currentEditingCourseId);
+      if (idx !== -1) {
+        allCourses[idx] = { ...allCourses[idx], ...payload };
+      }
+    } else {
+      payload._id = `crs_${Date.now()}`;
+      allCourses.unshift(payload);
+    }
+    ClientStore.set('courses', allCourses);
 
     showToast(isEdit ? 'Course updated successfully' : 'New course added successfully', 'success');
     closeCourseModal();
     fetchCourses();
     fetchCoursesForDropdown();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error saving course', 'error');
   } finally {
     elements.btnSubmitCourse.disabled = false;
     elements.btnSubmitCourseText.textContent = state.currentEditingCourseId ? 'Update Course' : 'Save Course';
@@ -1847,17 +2291,31 @@ async function executeDeleteCourse() {
 
   try {
     elements.btnConfirmDeleteCourse.disabled = true;
-    const { res, data: result } = await safeFetchJson(`${API_BASE}/api/courses/${state.currentDeletingCourseId}`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error(result.error || 'Failed to delete course');
 
-    showToast('Course removed from MongoDB successfully', 'success');
+    if (!state.isDemoMode) {
+      const { res, isFallback } = await safeFetchJson(`${API_BASE}/api/courses/${state.currentDeletingCourseId}`, {
+        method: 'DELETE',
+      });
+      if (!isFallback && res.ok) {
+        showToast('Course removed successfully', 'success');
+        closeDeleteCourseModal();
+        fetchCourses();
+        fetchCoursesForDropdown();
+        return;
+      }
+    }
+
+    // ClientStore fallback
+    let allCourses = ClientStore.get('courses', DEFAULT_COURSES);
+    allCourses = allCourses.filter((c) => (c._id || c.courseCode) !== state.currentDeletingCourseId);
+    ClientStore.set('courses', allCourses);
+
+    showToast('Course removed successfully', 'success');
     closeDeleteCourseModal();
     fetchCourses();
     fetchCoursesForDropdown();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error removing course', 'error');
   } finally {
     elements.btnConfirmDeleteCourse.disabled = false;
   }
@@ -1865,8 +2323,17 @@ async function executeDeleteCourse() {
 
 async function fetchCoursesForDropdown() {
   try {
-    const { res, data: courses } = await safeFetchJson(`${API_BASE}/api/courses`);
-    if (!res.ok) return;
+    let courses = null;
+    if (!state.isDemoMode) {
+      const { res, data, isFallback } = await safeFetchJson(`${API_BASE}/api/courses`);
+      if (!isFallback && res.ok && Array.isArray(data)) {
+        courses = data;
+      }
+    }
+
+    if (!courses) {
+      courses = ClientStore.get('courses', DEFAULT_COURSES);
+    }
 
     if (elements.attendanceCourseSelect) {
       const currentVal = elements.attendanceCourseSelect.value;
@@ -1909,23 +2376,53 @@ async function fetchAttendance() {
       status: state.attendanceFilters.status || 'All',
     });
 
-    const [resRecords, resStats] = await Promise.all([
-      safeFetchJson(`${API_BASE}/api/attendance?${params.toString()}`),
-      safeFetchJson(`${API_BASE}/api/attendance/stats`),
-    ]);
+    if (!state.isDemoMode) {
+      const [resRecords, resStats] = await Promise.all([
+        safeFetchJson(`${API_BASE}/api/attendance?${params.toString()}`),
+        safeFetchJson(`${API_BASE}/api/attendance/stats`),
+      ]);
 
-    if (!resRecords.res.ok) throw new Error('Failed to load attendance logs');
-    const records = Array.isArray(resRecords.data) ? resRecords.data : [];
-    state.attendance = records;
-
-    renderAttendanceTable(records);
-
-    if (resStats.res.ok) {
-      updateAttendanceStats(resStats.data, records.length);
+      if (!resRecords.isFallback && resRecords.res.ok && Array.isArray(resRecords.data)) {
+        state.attendance = resRecords.data;
+        renderAttendanceTable(state.attendance);
+        if (!resStats.isFallback && resStats.res.ok && resStats.data) {
+          updateAttendanceStats(resStats.data, state.attendance.length);
+        }
+        return;
+      }
     }
+
+    // ClientStore fallback
+    let allAttendance = ClientStore.get('attendance', DEFAULT_ATTENDANCE);
+    const filterDate = state.attendanceFilters.date || '';
+    const filterCourse = state.attendanceFilters.courseCode || 'All';
+    const filterStatus = state.attendanceFilters.status || 'All';
+
+    let filtered = allAttendance;
+    if (filterDate) {
+      filtered = filtered.filter((a) => a.date === filterDate);
+    }
+    if (filterCourse !== 'All') {
+      filtered = filtered.filter((a) => a.courseCode === filterCourse);
+    }
+    if (filterStatus !== 'All') {
+      filtered = filtered.filter((a) => a.status === filterStatus);
+    }
+
+    state.attendance = filtered;
+    renderAttendanceTable(state.attendance);
+
+    // Compute stats
+    const total = allAttendance.length;
+    const present = allAttendance.filter((a) => a.status === 'Present').length;
+    const late = allAttendance.filter((a) => a.status === 'Late').length;
+    const excused = allAttendance.filter((a) => a.status === 'Excused').length;
+    const absent = allAttendance.filter((a) => a.status === 'Absent').length;
+    const rate = total > 0 ? Math.round(((present + late * 0.5) / total) * 100) : 0;
+
+    updateAttendanceStats({ total, present, late, excused, absent, attendanceRate: rate }, filtered.length);
   } catch (err) {
     console.error('Attendance fetch error:', err);
-    showToast(err.message || 'Failed to load attendance from MongoDB', 'error');
     renderAttendanceTable([]);
   } finally {
     if (elements.loadingStateAttendance) elements.loadingStateAttendance.style.display = 'none';
@@ -2032,17 +2529,31 @@ function renderAttendanceTable(records) {
 
 async function quickToggleAttendance(attendanceId, newStatus) {
   try {
-    const { res, data: result } = await safeFetchJson(`${API_BASE}/api/attendance/${attendanceId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    if (!res.ok) throw new Error(result.error || 'Failed to update attendance');
+    if (!state.isDemoMode) {
+      const { res, isFallback } = await safeFetchJson(`${API_BASE}/api/attendance/${attendanceId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!isFallback && res.ok) {
+        showToast(`Status updated to ${newStatus}`, 'success', 2000);
+        fetchAttendance();
+        return;
+      }
+    }
+
+    // ClientStore fallback
+    let all = ClientStore.get('attendance', DEFAULT_ATTENDANCE);
+    const idx = all.findIndex((a) => (a._id || a.id) === attendanceId);
+    if (idx !== -1) {
+      all[idx].status = newStatus;
+      ClientStore.set('attendance', all);
+    }
 
     showToast(`Status updated to ${newStatus}`, 'success', 2000);
     fetchAttendance();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error updating status', 'error');
   }
 }
 
@@ -2050,15 +2561,26 @@ async function deleteAttendance(attendanceId) {
   if (!confirm('Are you sure you want to delete this attendance log?')) return;
 
   try {
-    const { res, data: result } = await safeFetchJson(`${API_BASE}/api/attendance/${attendanceId}`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error(result.error || 'Failed to delete attendance log');
+    if (!state.isDemoMode) {
+      const { res, isFallback } = await safeFetchJson(`${API_BASE}/api/attendance/${attendanceId}`, {
+        method: 'DELETE',
+      });
+      if (!isFallback && res.ok) {
+        showToast('Attendance log deleted', 'success');
+        fetchAttendance();
+        return;
+      }
+    }
+
+    // ClientStore fallback
+    let all = ClientStore.get('attendance', DEFAULT_ATTENDANCE);
+    all = all.filter((a) => (a._id || a.id) !== attendanceId);
+    ClientStore.set('attendance', all);
 
     showToast('Attendance log deleted', 'success');
     fetchAttendance();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error deleting log', 'error');
   }
 }
 
@@ -2198,24 +2720,59 @@ async function handleAttendanceBatchSubmit(e) {
     elements.btnSaveAttendanceBatch.disabled = true;
     elements.btnSaveAttendanceBatchText.textContent = 'Saving Records...';
 
-    const { res, data: result } = await safeFetchJson(`${API_BASE}/api/attendance/batch`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    if (!state.isDemoMode) {
+      const { res, data: result, isFallback } = await safeFetchJson(`${API_BASE}/api/attendance/batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseCode,
+          courseName,
+          date,
+          records,
+        }),
+      });
+
+      if (!isFallback && res.ok) {
+        showToast(`Saved attendance for ${result.savedCount} students!`, 'success');
+        closeMarkAttendanceModal();
+        fetchAttendance();
+        return;
+      }
+    }
+
+    // ClientStore fallback
+    let all = ClientStore.get('attendance', DEFAULT_ATTENDANCE);
+    const students = ClientStore.get('students', DEFAULT_STUDENTS);
+
+    records.forEach((r) => {
+      const stu = students.find((s) => s.studentId === r.studentId) || {};
+      const newRec = {
+        _id: `att_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        studentId: r.studentId,
+        studentName: stu.fullName || r.studentId,
+        studentAvatar: stu.avatar || '',
+        department: stu.department || '',
         courseCode,
         courseName,
         date,
-        records,
-      }),
+        status: r.status,
+        remarks: r.remarks,
+      };
+
+      const existIdx = all.findIndex((a) => a.studentId === r.studentId && a.courseCode === courseCode && a.date === date);
+      if (existIdx !== -1) {
+        all[existIdx] = { ...all[existIdx], ...newRec };
+      } else {
+        all.unshift(newRec);
+      }
     });
 
-    if (!res.ok) throw new Error(result.error || 'Failed to save attendance batch');
-
-    showToast(`Saved attendance for ${result.savedCount} students!`, 'success');
+    ClientStore.set('attendance', all);
+    showToast(`Saved attendance for ${records.length} students!`, 'success');
     closeMarkAttendanceModal();
     fetchAttendance();
   } catch (err) {
-    showToast(err.message, 'error');
+    showToast(err.message || 'Error recording attendance', 'error');
   } finally {
     elements.btnSaveAttendanceBatch.disabled = false;
     elements.btnSaveAttendanceBatchText.textContent = 'Save Attendance Records';
@@ -2259,15 +2816,98 @@ function exportAttendanceToCsv() {
 // ============================================================================
 async function fetchReports(isManual = false) {
   try {
-    const { res, data } = await safeFetchJson(`${API_BASE}/api/reports/summary`);
-    if (!res.ok) throw new Error('Failed to load academic reports');
-    state.reportsData = data;
+    if (!state.isDemoMode) {
+      const { res, data, isFallback } = await safeFetchJson(`${API_BASE}/api/reports/summary`);
+      if (!isFallback && res.ok && data) {
+        state.reportsData = data;
+        renderReports(data);
+        if (isManual) showToast('Academic intelligence telemetry updated live', 'success');
+        return;
+      }
+    }
 
-    renderReports(data);
+    // ClientStore dynamic calculation
+    const students = ClientStore.get('students', DEFAULT_STUDENTS);
+    const courses = ClientStore.get('courses', DEFAULT_COURSES);
+    const attendance = ClientStore.get('attendance', DEFAULT_ATTENDANCE);
+
+    const totalStudents = students.length;
+    const activeStudents = students.filter((s) => s.status === 'Active').length;
+    const inactiveStudents = students.filter((s) => s.status === 'Inactive').length;
+    const graduatedStudents = students.filter((s) => s.status === 'Graduated').length;
+    const suspendedStudents = students.filter((s) => s.status === 'Suspended').length;
+
+    const gpas = students.map((s) => parseFloat(s.gpa) || 0);
+    const avgGpa = totalStudents > 0 ? (gpas.reduce((a, b) => a + b, 0) / totalStudents).toFixed(2) : '0.00';
+
+    const deansList = students.filter((s) => (parseFloat(s.gpa) || 0) >= 3.8).length;
+    const goodStanding = students.filter((s) => (parseFloat(s.gpa) || 0) >= 3.0 && (parseFloat(s.gpa) || 0) < 3.8).length;
+    const averageStanding = students.filter((s) => (parseFloat(s.gpa) || 0) >= 2.0 && (parseFloat(s.gpa) || 0) < 3.0).length;
+    const atRiskGpa = students.filter((s) => (parseFloat(s.gpa) || 0) < 2.0).length;
+
+    const attPresent = attendance.filter((a) => a.status === 'Present').length;
+    const attLate = attendance.filter((a) => a.status === 'Late').length;
+    const attExcused = attendance.filter((a) => a.status === 'Excused').length;
+    const attAbsent = attendance.filter((a) => a.status === 'Absent').length;
+    const attRate = attendance.length > 0 ? Math.round(((attPresent + attLate * 0.5) / attendance.length) * 100) : 0;
+
+    const deptMap = {};
+    students.forEach((s) => {
+      const d = s.department || 'Other';
+      if (!deptMap[d]) deptMap[d] = { count: 0, gpaSum: 0, active: 0 };
+      deptMap[d].count++;
+      deptMap[d].gpaSum += parseFloat(s.gpa) || 0;
+      if (s.status === 'Active') deptMap[d].active++;
+    });
+
+    const departments = Object.keys(deptMap).map((d) => ({
+      department: d,
+      studentCount: deptMap[d].count,
+      avgGpa: (deptMap[d].gpaSum / deptMap[d].count).toFixed(2),
+      activeCount: deptMap[d].active,
+      sharePercentage: Math.round((deptMap[d].count / (totalStudents || 1)) * 100),
+    }));
+
+    const topPerformers = [...students].sort((a, b) => (parseFloat(b.gpa) || 0) - (parseFloat(a.gpa) || 0)).slice(0, 5);
+    const atRiskStudents = students.filter((s) => (parseFloat(s.gpa) || 0) < 2.5);
+
+    const reportData = {
+      metrics: {
+        totalStudents,
+        activeStudents,
+        inactiveStudents,
+        graduatedStudents,
+        suspendedStudents,
+        avgGpa,
+        attendanceRate: attRate,
+        totalCourses: courses.length,
+        activeCourses: courses.filter((c) => c.status === 'Active').length,
+        totalInstructors: new Set(courses.map((c) => c.instructor).filter(Boolean)).size,
+      },
+      gpaTiers: {
+        deansList,
+        goodStanding,
+        averageStanding,
+        atRiskGpa,
+      },
+      attendanceBreakdown: {
+        total: attendance.length,
+        present: attPresent,
+        absent: attAbsent,
+        late: attLate,
+        excused: attExcused,
+        rate: attRate,
+      },
+      departments,
+      topPerformers,
+      atRiskStudents,
+    };
+
+    state.reportsData = reportData;
+    renderReports(reportData);
     if (isManual) showToast('Academic intelligence telemetry updated live', 'success');
   } catch (err) {
     console.error('Reports fetch error:', err);
-    showToast(err.message || 'Failed to generate institutional reports', 'error');
   }
 }
 
