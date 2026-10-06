@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | EduPulse Student Management System</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Dedicated Login View -->
+  <div class="login-view">
+    <!-- Quick Campus Theme Selector in Standalone Login -->
+    <div class="login-theme-corner">
+      <div class="theme-dropdown-wrap">
+        <button type="button" class="btn btn-outline btn-theme-toggle" id="btnStandaloneThemeToggle" title="Change Background & Portal Theme">
+          <i class="fa-solid fa-palette text-blue"></i>
+          <span id="standaloneThemeToggleText">Theme</span>
+          <i class="fa-solid fa-chevron-down text-xs"></i>
+        </button>
+        <div class="theme-dropdown-menu" id="standaloneThemeDropdownMenu" style="display: none;">
+          <div class="theme-menu-header">
+            <i class="fa-solid fa-swatchbook"></i>
+            <span>Campus Themes</span>
+          </div>
+          <button type="button" class="theme-option active" data-theme="academic-blue">
+            <span class="theme-dot" style="background: linear-gradient(135deg, #1e40af, #3b82f6);"></span>
+            <div class="theme-info">
+              <strong>Academic Blue</strong>
+              <span>Oxford Blue & Ice Slate</span>
+            </div>
+            <i class="fa-solid fa-check check-icon"></i>
+          </button>
+          <button type="button" class="theme-option" data-theme="royal-navy">
+            <span class="theme-dot" style="background: linear-gradient(135deg, #0f172a, #1e3a8a);"></span>
+            <div class="theme-info">
+              <strong>Royal Navy Campus</strong>
+              <span>Collegiate Navy & Pearl</span>
+            </div>
+            <i class="fa-solid fa-check check-icon"></i>
+          </button>
+          <button type="button" class="theme-option" data-theme="ivy-league">
+            <span class="theme-dot" style="background: linear-gradient(135deg, #065f46, #10b981);"></span>
+            <div class="theme-info">
+              <strong>Ivy League Emerald</strong>
+              <span>Dartmouth Forest & Sage</span>
+            </div>
+            <i class="fa-solid fa-check check-icon"></i>
+          </button>
+          <button type="button" class="theme-option" data-theme="crimson-crest">
+            <span class="theme-dot" style="background: linear-gradient(135deg, #991b1b, #ef4444);"></span>
+            <div class="theme-info">
+              <strong>Crimson University</strong>
+              <span>Harvard Crimson & Ivory</span>
+            </div>
+            <i class="fa-solid fa-check check-icon"></i>
+          </button>
+          <button type="button" class="theme-option" data-theme="midnight-campus">
+            <span class="theme-dot" style="background: linear-gradient(135deg, #090d16, #3b82f6);"></span>
+            <div class="theme-info">
+              <strong>Midnight Campus</strong>
+              <span>Dark Academic Mode</span>
+            </div>
+            <i class="fa-solid fa-check check-icon"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-container">
+      
+      <!-- Left Hero Banner with Student Showcase -->
+      <div class="login-hero">
+        <div class="login-brand">
+          <div class="brand-icon hero-icon">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div class="brand-text">
+            <h2>EduPulse</h2>
+            <span>Student Management System</span>
+          </div>
+        </div>
+
+        <div class="hero-content">
+          <h3>Academic Intelligence & Student Records Portal</h3>
+          <p>
+            Secure, full-stack database platform powered by Node.js, Express, and MongoDB.
+            Manage student registrations, profile photos, GPAs, and dossiers in real time.
+          </p>
+
+          <div class="hero-features">
+            <div class="hero-feature-item">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Live MongoDB Integration & Health Telemetry</span>
+            </div>
+            <div class="hero-feature-item">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Student Profile Photos & Base64 Image Uploads</span>
+            </div>
+            <div class="hero-feature-item">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Full CRUD, Instant Search, CSV Export & Analytics</span>
+            </div>
+          </div>
+
+          <!-- Student Image Showcase in Login Page -->
+          <div class="login-student-showcase">
+            <div class="showcase-img-container">
+              <img 
+                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80" 
+                alt="University Students in Student Management System" 
+                class="showcase-main-img" 
+              />
+              <div class="showcase-overlay-gradient"></div>
+              <div class="showcase-floating-badge">
+                <div class="floating-avatars">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80" alt="Student 1" />
+                  <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=80&auto=format&fit=crop&q=80" alt="Student 2" />
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&auto=format&fit=crop&q=80" alt="Student 3" />
+                  <span class="avatar-count-pill">+500</span>
+                </div>
+                <div class="floating-badge-text">
+                  <strong>Student Records & Photos</strong>
+                  <span>Active MongoDB Dossiers</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-footer-note">
+          <span>&copy; 2026 EduPulse SMS &bull; Connected to MongoDB</span>
+        </div>
+      </div>
+
+      <!-- Right Login Card Form -->
+      <div class="login-card-panel">
+        <div class="login-card">
+          <!-- Mobile / Card Student Thumbnail Header -->
+          <div class="login-card-brand-pill">
+            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=160&auto=format&fit=crop&q=80" alt="Student System" class="login-card-thumb" />
+            <div class="login-card-thumb-text">
+              <span class="pill-badge"><i class="fa-solid fa-graduation-cap"></i> Student Management System</span>
+              <span class="pill-sub">EduPulse Academic Portal</span>
+            </div>
+          </div>
+
+          <div class="login-card-header">
+            <h3>Sign In to Portal</h3>
+            <p>Enter your credentials to access the student database</p>
+          </div>
+
+          <!-- Alert for Login Feedback -->
+          <div class="login-alert" id="loginAlert" style="display: none;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="loginAlertText">Invalid username or password.</span>
+          </div>
+
+          <!-- Already logged in banner if present -->
+          <div class="login-alert" id="alreadyLoggedInAlert" style="display: none; background-color: #ecfdf5; color: #065f46; border-color: #a7f3d0;">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="alreadyLoggedInText">You are currently logged in.</span>
+            <a href="index.html" class="btn btn-primary btn-sm" style="margin-left: auto;">Go to Dashboard</a>
+          </div>
+
+          <form id="standaloneLoginForm" class="login-form" novalidate>
+            <div class="form-group">
+              <label for="loginUsername">Username or Institutional Email</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user"></i>
+                <input 
+                  type="text" 
+                  id="loginUsername" 
+                  placeholder="admin or admin@edupulse.edu" 
+                  required 
+                  autocomplete="username"
+                  value="admin"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="label-with-action">
+                <label for="loginPassword">Password</label>
+                <button type="button" class="btn-link-sm" id="btnForgotPwd">Need help?</button>
+              </div>
+              <div class="input-with-icon password-input-wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input 
+                  type="password" 
+                  id="loginPassword" 
+                  placeholder="Enter your password" 
+                  required 
+                  autocomplete="current-password"
+                  value="admin123"
+                />
+                <button type="button" class="btn-toggle-pwd" id="btnTogglePassword" title="Show/Hide Password">
+                  <i class="fa-regular fa-eye" id="togglePwdIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-row-remember">
+              <label class="checkbox-container">
+                <input type="checkbox" id="loginRememberMe" checked />
+                <span class="checkmark"></span>
+                <span>Keep me signed in</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="btnLoginSubmit">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span id="btnLoginSubmitText">Sign In to Dashboard</span>
+            </button>
+          </form>
+
+          <!-- Quick Demo Logins Helper -->
+          <div class="demo-logins-box">
+            <div class="demo-logins-title">
+              <i class="fa-solid fa-bolt"></i>
+              <span>One-Click Demo Accounts</span>
+            </div>
+            <div class="demo-buttons-grid">
+              <button type="button" class="btn-demo-quick" id="btnDemoAdmin" title="Autofill Administrator Account">
+                <div class="demo-quick-avatar bg-blue-subtle text-blue">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="demo-quick-text">
+                  <strong>Administrator</strong>
+                  <span>admin / admin123</span>
+                </div>
+              </button>
+
+              <button type="button" class="btn-demo-quick" id="btnDemoStaff" title="Autofill Faculty Staff Account">
+                <div class="demo-quick-avatar bg-purple-subtle text-purple">
+                  <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div class="demo-quick-text">
+                  <strong>Faculty Staff</strong>
+                  <span>staff / staff123</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; text-align: center;">
+            <a href="index.html" class="btn-link" style="color: var(--text-secondary); font-size: 0.8rem;">
+              <i class="fa-solid fa-arrow-left"></i> Return to Main Application
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AUTH_KEY = 'edupulse_auth_user';
+    const TOKEN_KEY = 'edupulse_auth_token';
+    const THEME_KEY = 'edupulse_academic_theme';
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'academic-blue';
+
+    const THEME_NAMES = {
+      'academic-blue': 'Academic Blue',
+      'royal-navy': 'Royal Navy',
+      'ivy-league': 'Ivy League',
+      'crimson-crest': 'Crimson Crest',
+      'midnight-campus': 'Midnight Campus',
+    };
+
+    const standaloneThemeBtn = document.getElementById('btnStandaloneThemeToggle');
+    const standaloneThemeMenu = document.getElementById('standaloneThemeDropdownMenu');
+    const standaloneThemeText = document.getElementById('standaloneThemeToggleText');
+
+    function applyTheme(t) {
+      document.documentElement.dataset.theme = t;
+      localStorage.setItem(THEME_KEY, t);
+      if (standaloneThemeText) standaloneThemeText.textContent = THEME_NAMES[t] || 'Theme';
+      if (standaloneThemeMenu) {
+        standaloneThemeMenu.querySelectorAll('.theme-option').forEach((opt) => {
+          opt.classList.toggle('active', opt.dataset.theme === t);
+        });
+      }
+    }
+
+    applyTheme(savedTheme);
+
+    if (standaloneThemeBtn && standaloneThemeMenu) {
+      standaloneThemeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVis = standaloneThemeMenu.style.display === 'flex';
+        standaloneThemeMenu.style.display = isVis ? 'none' : 'flex';
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.theme-dropdown-wrap')) {
+          standaloneThemeMenu.style.display = 'none';
+        }
+      });
+
+      standaloneThemeMenu.querySelectorAll('.theme-option').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          applyTheme(btn.dataset.theme);
+          standaloneThemeMenu.style.display = 'none';
+        });
+      });
+    }
+
+    const API_BASE = (() => {
+      const loc = window.location;
+      if (!loc || loc.protocol === 'file:') {
+        return 'http://localhost:5000';
+      }
+      if (loc.port && loc.port !== '5000') {
+        return `${loc.protocol}//${loc.hostname || 'localhost'}:5000`;
+      }
+      return '';
+    })();
+
+    const loginForm = document.getElementById('standaloneLoginForm');
+    const usernameInput = document.getElementById('loginUsername');
+    const passwordInput = document.getElementById('loginPassword');
+    const rememberMeInput = document.getElementById('loginRememberMe');
+    const submitBtn = document.getElementById('btnLoginSubmit');
+    const submitBtnText = document.getElementById('btnLoginSubmitText');
+    const alertBox = document.getElementById('loginAlert');
+    const alertText = document.getElementById('loginAlertText');
+    const togglePwdBtn = document.getElementById('btnTogglePassword');
+    const togglePwdIcon = document.getElementById('togglePwdIcon');
+    const btnDemoAdmin = document.getElementById('btnDemoAdmin');
+    const btnDemoStaff = document.getElementById('btnDemoStaff');
+    const btnForgotPwd = document.getElementById('btnForgotPwd');
+    const alreadyLoggedInAlert = document.getElementById('alreadyLoggedInAlert');
+    const alreadyLoggedInText = document.getElementById('alreadyLoggedInText');
+
+    // Check if user is already logged in
+    const storedUser = localStorage.getItem(AUTH_KEY) || sessionStorage.getItem(AUTH_KEY);
+    if (storedUser) {
+      try {
+        const u = JSON.parse(storedUser);
+        alreadyLoggedInText.textContent = `Signed in as ${u.name || u.username} (${u.role || 'Admin'})`;
+        alreadyLoggedInAlert.style.display = 'flex';
+      } catch (e) {}
+    }
+
+    // Toggle password
+    togglePwdBtn.addEventListener('click', () => {
+      const isPwd = passwordInput.type === 'password';
+      passwordInput.type = isPwd ? 'text' : 'password';
+      togglePwdIcon.className = isPwd ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+    });
+
+    // Demo admin
+    btnDemoAdmin.addEventListener('click', () => {
+      usernameInput.value = 'admin';
+      passwordInput.value = 'admin123';
+      alertBox.style.display = 'none';
+      loginForm.dispatchEvent(new Event('submit'));
+    });
+
+    // Demo staff
+    btnDemoStaff.addEventListener('click', () => {
+      usernameInput.value = 'staff';
+      passwordInput.value = 'staff123';
+      alertBox.style.display = 'none';
+      loginForm.dispatchEvent(new Event('submit'));
+    });
+
+    btnForgotPwd.addEventListener('click', () => {
+      alert('Demo Credentials:\n\nAdministrator: admin / admin123\nFaculty Staff: staff / staff123');
+    });
+
+    // Handle Login Submit
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+      const remember = rememberMeInput.checked;
+
+      if (!username || !password) {
+        alertText.textContent = 'Please enter both username and password.';
+        alertBox.style.display = 'flex';
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtnText.textContent = 'Authenticating...';
+
+        let res;
+        try {
+          res = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
+        } catch (netErr) {
+          throw new Error('Cannot connect to backend server on port 5000. Please ensure "node server.js" is running.');
+        }
+
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          throw new Error('Backend server did not return a valid response. Please ensure "node server.js" is running on port 5000.');
+        }
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error('Server returned an unreadable response. Please check backend server.');
+        }
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Invalid credentials.');
+        }
+
+        const storage = remember ? localStorage : sessionStorage;
+        storage.setItem(AUTH_KEY, JSON.stringify(data.user));
+        if (data.token) storage.setItem(TOKEN_KEY, data.token);
+
+        submitBtnText.textContent = 'Success! Redirecting...';
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 500);
+      } catch (err) {
+        let msg = err.message || 'Authentication error.';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+          msg = 'Cannot connect to backend server on port 5000. Please ensure "node server.js" is running.';
+        }
+        alertText.textContent = msg;
+        alertBox.style.display = 'flex';
+        submitBtn.disabled = false;
+        submitBtnText.textContent = 'Sign In to Dashboard';
+      }
+    });
+  </script>
+</body>
+</html>
